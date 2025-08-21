@@ -70,7 +70,7 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
 
     if (joint.state_interfaces[1].name != hardware_interface::HW_IF_VELOCITY)
     {
-      RCLCPP_FATAL(LOGGER, "Joint '%s' have %s state interface as first state interface. '%s' expected.",
+      RCLCPP_FATAL(LOGGER, "Joint '%s' have %s state interface as second state interface. '%s' expected.",
                    joint.name.c_str(), joint.state_interfaces[1].name.c_str(), hardware_interface::HW_IF_VELOCITY);
       return CallbackReturn::ERROR;
     }
@@ -83,12 +83,15 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
   const bool configure_via_rws = configure_it == info_.hardware_parameters.end()                    ? true :
                                  configure_it->second == "false" || configure_it->second == "False" ? false :
                                                                                                       true;
+  const auto rws_port = stoi(info_.hardware_parameters["rws_port"]);
+  const auto rws_ip = info_.hardware_parameters["rws_ip"];
+  const auto rapid_file_path = info_.hardware_parameters["rapid_file_path"];
 
+  rws_manager_ = std::make_unique<abb::robot::RWSManager>(rws_ip, rws_port, "Default User", "robotics");
+            
   if (configure_via_rws)
   {
     RCLCPP_INFO_STREAM(LOGGER, "Generating robot controller description from RWS.");
-    const auto rws_port = stoi(info_.hardware_parameters["rws_port"]);
-    const auto rws_ip = info_.hardware_parameters["rws_ip"];
 
     if (rws_ip == "None")
     {
@@ -97,8 +100,7 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
     }
 
     // Get robot controller description from RWS
-    abb::robot::RWSManager rws_manager(rws_ip, rws_port, "Default User", "robotics");
-    robot_controller_description_ = abb::robot::utilities::establishRWSConnection(rws_manager, "IRB1200", true);
+    robot_controller_description_ = abb::robot::utilities::establishRWSConnection(*rws_manager_, "IRB1200", true);
   }
   else
   {
@@ -157,6 +159,112 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
     }
   }
 
+  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to stop RAPID program in case it is running...");
+      interface.stopRAPIDExecution();
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to stop RAPID program...");
+      // return CallbackReturn::ERROR;
+    }
+  });
+
+  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      FILE* file = std::fopen(rapid_file_path.c_str(), "rb");  
+      if (!file)
+      {
+        throw std::runtime_error(std::string("Failed to open file: ") + rapid_file_path);
+      }
+
+      std::fseek(file, 0, SEEK_END);
+      long size = std::ftell(file);
+      std::rewind(file);
+
+      std::string buffer;
+      buffer.resize(size);
+
+      if (size > 0)
+      {
+        size_t read = std::fread(&buffer[0], 1, size, file);
+        buffer.resize(read);
+      }
+
+      std::fclose(file);
+
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to upload file to controller...");
+      interface.uploadFile(abb::rws::FileResource("main.mod"), buffer);
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to upload file...");
+      // return CallbackReturn::ERROR;
+    }
+  });
+
+  rclcpp::sleep_for(1000ms);
+
+  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to load module to task...");
+      interface.loadModuleIntoTask("T_ROB1", abb::rws::FileResource("main.mod"), true);
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to load module...");
+      // return CallbackReturn::ERROR;
+    }
+  });
+
+  rclcpp::sleep_for(1000ms);
+  
+    rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to set pp to main.....");
+      interface.resetRAPIDProgramPointer();
+      RCLCPP_WARN_STREAM(LOGGER, "pp set to main.....");
+    }
+    catch(...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to reset pointer...");
+    }
+  });
+
+  rclcpp::sleep_for(1000ms);
+
+  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_WARN_STREAM(LOGGER, "Trying to start motors.....");
+      interface.setMotorsOn();
+    }
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to start motors...");
+    }
+  });
+
+  rclcpp::sleep_for(1000ms);
+
+  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to start RAPID program...");
+      interface.startRAPIDExecution();
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to start RAPID program...");
+      // return CallbackReturn::ERROR;
+    }
+  });
+
   RCLCPP_INFO_STREAM(LOGGER, "Robot controller description:\n"
                                  << abb::robot::summaryText(robot_controller_description_));
 
@@ -203,6 +311,11 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
     RCLCPP_ERROR_STREAM(LOGGER, "Failed to initialize EGM connection");
     return CallbackReturn::ERROR;
   }
+
+  // initialize variables
+  first_pass_ = true;
+  initialized_ = false;
+  async_thread_shutdown_ = false;
 
   return CallbackReturn::SUCCESS;
 }
@@ -251,6 +364,12 @@ std::vector<hardware_interface::CommandInterface> ABBSystemHardware::export_comm
     }
   }
 
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(
+      "abb_start_rapid", "start_rapid_cmd", &start_rapid_cmd_));
+
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(
+      "abb_start_rapid", "start_rapid_async_success", &start_rapid_async_success_));
+
   return command_interfaces;
 }
 
@@ -289,6 +408,8 @@ CallbackReturn ABBSystemHardware::on_activate(const rclcpp_lifecycle::State& /* 
     }
   }
 
+  async_thread_ = std::make_shared<std::thread>(&ABBSystemHardware::asyncThread, this);
+
   RCLCPP_INFO(LOGGER, "ros2_control hardware interface was successfully started!");
 
   return CallbackReturn::SUCCESS;
@@ -297,6 +418,13 @@ CallbackReturn ABBSystemHardware::on_activate(const rclcpp_lifecycle::State& /* 
 return_type ABBSystemHardware::read(const rclcpp::Time& time, const rclcpp::Duration& period)
 {
   egm_manager_->read(motion_data_);
+  
+  if (first_pass_ && !initialized_) {
+    initAsyncIO();
+    initialized_ = true;
+    first_pass_ = false;
+  }
+
   return return_type::OK;
 }
 
@@ -304,6 +432,38 @@ return_type ABBSystemHardware::write(const rclcpp::Time& time, const rclcpp::Dur
 {
   egm_manager_->write(motion_data_);
   return return_type::OK;
+}
+
+void ABBSystemHardware::asyncThread()
+{
+  while (!async_thread_shutdown_) {
+    if (initialized_) {
+      checkAsyncIO();
+    }
+    std::this_thread::sleep_for(std::chrono::nanoseconds(20000000));
+  }
+}
+
+void ABBSystemHardware::checkAsyncIO()
+{
+  // if (!rtde_comm_has_been_started_) {
+  //   return;
+  // }
+
+  if (!std::isnan(start_rapid_cmd_) && rws_manager_ != nullptr) {
+    try {
+      RCLCPP_INFO(LOGGER, "Implement starting behavior...");
+      // start_rapid_async_success_ = rws_manager_->sendRobotProgram();
+    } catch (...) {
+      RCLCPP_ERROR(LOGGER, "Starting the RAPID program failed...");
+    }
+    start_rapid_cmd_ = NO_NEW_CMD_;
+  }
+}
+
+void ABBSystemHardware::initAsyncIO()
+{
+  start_rapid_cmd_ = NO_NEW_CMD_;
 }
 
 }  // namespace abb_hardware_interface

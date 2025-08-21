@@ -64,6 +64,12 @@ public:
   ROS2_CONTROL_DRIVER_PUBLIC
   return_type write(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
+  static constexpr double NO_NEW_CMD_ = std::numeric_limits<double>::quiet_NaN();
+
+  void asyncThread();
+  void initAsyncIO();
+  void checkAsyncIO();
+
 private:
   // EGM
   abb::robot::RobotControllerDescription robot_controller_description_;
@@ -71,6 +77,18 @@ private:
 
   // Store the state and commands for the robot(s)
   abb::robot::MotionData motion_data_;
+
+  //RWS 
+  std::unique_ptr<abb::robot::RWSManager> rws_manager_;
+
+  // asynchronous commands
+  std::shared_ptr<std::thread> async_thread_;
+
+  double start_rapid_cmd_;
+  double start_rapid_async_success_;
+  bool first_pass_;
+  bool initialized_;
+  bool async_thread_shutdown_;
 };
 
 }  // namespace abb_hardware_interface
