@@ -442,21 +442,21 @@ void ABBSystemHardware::checkAsyncIO()
   //   return;
   // }
 
-  if (!std::isnan(start_rapid_cmd_) && rws_manager_ != nullptr) {
+  if (!std::isnan(abb_stop_RAPID_program_cmd_) && rws_manager_ != nullptr) {
     try {
       RCLCPP_INFO(LOGGER, "Stopping the RAPID program...");
-      start_rapid_async_success_ = rws_manager_->sendRobotProgram();
+      abb_stop_RAPID_program_success_ = rws_manager_->sendRobotProgram();
     }
     catch (...) {
       RCLCPP_ERROR(LOGGER, "Stopping the RAPID program failed...");
     }
-    start_rapid_cmd_ = NO_NEW_CMD_;
+    abb_stop_RAPID_program_cmd_ = NO_NEW_CMD_;
   }
 }
 
 void ABBSystemHardware::initAsyncIO()
 {
-  start_rapid_cmd_ = NO_NEW_CMD_;
+  abb_stop_RAPID_program_cmd_ = NO_NEW_CMD_;
 }
 
 }  // namespace abb_hardware_interface
