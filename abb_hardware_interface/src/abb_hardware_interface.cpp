@@ -357,10 +357,10 @@ std::vector<hardware_interface::CommandInterface> ABBSystemHardware::export_comm
   }
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      "abb_stop_RAPID_program", "abb_stop_RAPID_program_cmd", &abb_stop_RAPID_program_cmd_));
+      "abb_stop_RAPID_program", "stop_RAPID_program_cmd", &stop_RAPID_program_cmd_));
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      "abb_stop_RAPID_program", "abb_stop_RAPID_program_success", &abb_stop_RAPID_program_success_));
+      "abb_stop_RAPID_program", "stop_RAPID_program_success", &stop_RAPID_program_success_));
 
   return command_interfaces;
 }
@@ -442,21 +442,21 @@ void ABBSystemHardware::checkAsyncIO()
   //   return;
   // }
 
-  if (!std::isnan(abb_stop_RAPID_program_cmd_) && rws_manager_ != nullptr) {
+  if (!std::isnan(stop_RAPID_program_cmd_) && rws_manager_ != nullptr) {
     try {
       RCLCPP_INFO(LOGGER, "Stopping the RAPID program...");
-      abb_stop_RAPID_program_success_ = abb::robot::utilities::stopRAPIDprogram(*rws_manager_);
+      stop_RAPID_program_success_ = abb::robot::utilities::stopRAPIDprogram(*rws_manager_);
     }
     catch (...) {
       RCLCPP_ERROR(LOGGER, "Stopping the RAPID program failed...");
     }
-    abb_stop_RAPID_program_cmd_ = NO_NEW_CMD_;
+    stop_RAPID_program_cmd_ = NO_NEW_CMD_;
   }
 }
 
 void ABBSystemHardware::initAsyncIO()
 {
-  abb_stop_RAPID_program_cmd_ = NO_NEW_CMD_;
+  stop_RAPID_program_cmd_ = NO_NEW_CMD_;
 }
 
 }  // namespace abb_hardware_interface
