@@ -445,7 +445,7 @@ void ABBSystemHardware::checkAsyncIO()
   if (!std::isnan(abb_stop_RAPID_program_cmd_) && rws_manager_ != nullptr) {
     try {
       RCLCPP_INFO(LOGGER, "Stopping the RAPID program...");
-      abb_stop_RAPID_program_success_ = rws_manager_->sendRobotProgram();
+      abb_stop_RAPID_program_success_ = abb::robot::utilities::stopRAPIDprogram(*rws_manager_);
     }
     catch (...) {
       RCLCPP_ERROR(LOGGER, "Stopping the RAPID program failed...");
