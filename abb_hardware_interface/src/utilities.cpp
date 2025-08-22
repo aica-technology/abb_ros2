@@ -115,6 +115,26 @@ bool verifyStateMachineAddInPresence(const SystemIndicators& system_indicators)
 {
   return system_indicators.addins().state_machine_1_0() || system_indicators.addins().state_machine_1_1();
 }
+
+bool stopRAPIDprogram(RWSManager& rws_manager)
+{
+  bool success {}; 
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to stop RAPID program in case it is running...");
+      interface.stopRAPIDExecution();
+      success = true; 
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to stop RAPID program...");
+      success = false;
+    }
+  });
+  return success;
+}
+
 }  // namespace utilities
 }  // namespace robot
 }  // namespace abb

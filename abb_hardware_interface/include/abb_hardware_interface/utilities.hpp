@@ -87,6 +87,15 @@ void verifyRobotWareVersion(const RobotWareVersion& rw_version);
  * \return bool true if the StateMachine Add-In is present.
  */
 bool verifyStateMachineAddInPresence(const SystemIndicators& system_indicators);
+
+/**
+ * \brief Stops the RAPID program that is running.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ *
+ */
+bool stopRAPIDprogram(RWSManager& rws_manager);
+
 }  // namespace utilities
 }  // namespace robot
 }  // namespace abb

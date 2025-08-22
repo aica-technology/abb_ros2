@@ -159,18 +159,10 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
     }
   }
 
-  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
-    try
-    {
-      RCLCPP_INFO_STREAM(LOGGER, "Trying to stop RAPID program in case it is running...");
-      interface.stopRAPIDExecution();
-    } 
-    catch (...)
-    {
-      RCLCPP_ERROR_STREAM(LOGGER, "Failed to stop RAPID program...");
-      // return CallbackReturn::ERROR;
-    }
-  });
+   if (!abb::robot::utilities::stopRAPIDprogram(*rws_manager_))
+   {
+    return CallbackReturn::ERROR;
+   }
 
   rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
     try
@@ -365,10 +357,10 @@ std::vector<hardware_interface::CommandInterface> ABBSystemHardware::export_comm
   }
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      "abb_start_rapid", "start_rapid_cmd", &start_rapid_cmd_));
+      "abb_stop_RAPID_program", "abb_stop_RAPID_program_cmd", &abb_stop_RAPID_program_cmd_));
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
-      "abb_start_rapid", "start_rapid_async_success", &start_rapid_async_success_));
+      "abb_stop_RAPID_program", "abb_stop_RAPID_program_success", &abb_stop_RAPID_program_success_));
 
   return command_interfaces;
 }
@@ -452,10 +444,11 @@ void ABBSystemHardware::checkAsyncIO()
 
   if (!std::isnan(start_rapid_cmd_) && rws_manager_ != nullptr) {
     try {
-      RCLCPP_INFO(LOGGER, "Implement starting behavior...");
-      // start_rapid_async_success_ = rws_manager_->sendRobotProgram();
-    } catch (...) {
-      RCLCPP_ERROR(LOGGER, "Starting the RAPID program failed...");
+      RCLCPP_INFO(LOGGER, "Stopping the RAPID program...");
+      start_rapid_async_success_ = rws_manager_->sendRobotProgram();
+    }
+    catch (...) {
+      RCLCPP_ERROR(LOGGER, "Stopping the RAPID program failed...");
     }
     start_rapid_cmd_ = NO_NEW_CMD_;
   }

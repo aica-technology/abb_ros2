@@ -84,8 +84,8 @@ private:
   // asynchronous commands
   std::shared_ptr<std::thread> async_thread_;
 
-  double start_rapid_cmd_;
-  double start_rapid_async_success_;
+  double abb_stop_RAPID_program_cmd_;
+  double abb_stop_RAPID_program_success_;
   bool first_pass_;
   bool initialized_;
   bool async_thread_shutdown_;
