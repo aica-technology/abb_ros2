@@ -118,6 +118,11 @@ bool verifyStateMachineAddInPresence(const SystemIndicators& system_indicators)
 
 bool stopRAPIDprogram(RWSManager& rws_manager)
 {
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+
   bool success {}; 
   rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
     try
@@ -133,6 +138,55 @@ bool stopRAPIDprogram(RWSManager& rws_manager)
     }
   });
   return success;
+}
+
+bool setGPIO(RWSManager& rws_manager, const std::string& signal, bool value)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+  if (!verifyArgumentSignal(signal))
+  {
+    return false;
+  }
+
+  bool success {}; 
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to set GPIO...");
+      interface.setDigitalSignal(signal, value);
+      success = true;
+    }
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to stet GPIO...");
+      success = false;
+    }
+  });
+  return success;
+}
+
+
+bool verifyRWSManagerReady(RWSManager& rws_manager)
+{
+  if (!rws_manager.isInterfaceReady())
+  {
+    RCLCPP_ERROR_STREAM(LOGGER, "RWS Manager not ready...");
+    return false;
+  }
+  return true;
+}
+
+bool verifyArgumentSignal(const std::string& signal)
+{
+  if (signal.empty())
+  {
+    RCLCPP_ERROR_STREAM(LOGGER, "Empty signal...");
+    return false;
+  }
+  return true;
 }
 
 }  // namespace utilities

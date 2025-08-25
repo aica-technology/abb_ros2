@@ -96,6 +96,32 @@ bool verifyStateMachineAddInPresence(const SystemIndicators& system_indicators);
  */
 bool stopRAPIDprogram(RWSManager& rws_manager);
 
+/**
+ * \brief Sets a GPIO.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ * \param signal the signal name.
+ * \param value the value to be written.
+ *
+ */
+bool setGPIO(RWSManager& rws_manager, const std::string& signal, bool value);
+
+/**
+ * \brief Verifys that a signal argument is not empty.
+ *
+ * \param signal the signal name.
+ *
+ */
+bool verifyArgumentSignal(const std::string& signal);
+
+/**
+ * \brief Verifys that the RWS manager is ready.
+ *
+ * \param rws_manager to check.
+ *
+ */
+bool verifyRWSManagerReady(RWSManager& rws_manager);
+
 }  // namespace utilities
 }  // namespace robot
 }  // namespace abb

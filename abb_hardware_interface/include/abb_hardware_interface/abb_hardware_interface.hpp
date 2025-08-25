@@ -89,6 +89,11 @@ private:
   bool first_pass_;
   bool initialized_;
   bool async_thread_shutdown_;
+  std::string tf_prefix_;
+
+  double io_async_success_;
+  double ManualMode_cmd_;
+  double ManualMode_current_;
 };
 
 }  // namespace abb_hardware_interface

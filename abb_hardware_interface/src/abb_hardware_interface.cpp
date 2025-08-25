@@ -86,7 +86,8 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
   const auto rws_port = stoi(info_.hardware_parameters["rws_port"]);
   const auto rws_ip = info_.hardware_parameters["rws_ip"];
   const auto rapid_file_path = info_.hardware_parameters["rapid_file_path"];
-
+  
+  tf_prefix_ = info_.hardware_parameters["tf_prefix"];
   rws_manager_ = std::make_unique<abb::robot::RWSManager>(rws_ip, rws_port, "Default User", "robotics");
             
   if (configure_via_rws)
@@ -332,6 +333,10 @@ std::vector<hardware_interface::StateInterface> ABBSystemHardware::export_state_
       }
     }
   }
+
+  state_interfaces.emplace_back(hardware_interface::StateInterface(
+      tf_prefix_ + "gpio", "SC_Feedback_Net/SC_Feedback_Dev/ManualMode/current", &ManualMode_current_));
+
   return state_interfaces;
 }
 
@@ -356,12 +361,18 @@ std::vector<hardware_interface::CommandInterface> ABBSystemHardware::export_comm
     }
   }
 
+  command_interfaces.emplace_back(
+      hardware_interface::CommandInterface(tf_prefix_+ "gpio", "io_async_success", &io_async_success_)); 
+
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
       "abb_stop_RAPID_program", "stop_RAPID_program_cmd", &stop_RAPID_program_cmd_));
 
   command_interfaces.emplace_back(hardware_interface::CommandInterface(
       "abb_stop_RAPID_program", "stop_RAPID_program_success", &stop_RAPID_program_success_));
 
+  command_interfaces.emplace_back(hardware_interface::CommandInterface(
+        tf_prefix_+ "gpio", "SC_Feedback_Net/SC_Feedback_Dev/ManualMode/cmd", &ManualMode_cmd_));
+  
   return command_interfaces;
 }
 
@@ -452,11 +463,20 @@ void ABBSystemHardware::checkAsyncIO()
     }
     stop_RAPID_program_cmd_ = NO_NEW_CMD_;
   }
+
+
+  if (!std::isnan(ManualMode_cmd_) && rws_manager_ != nullptr) {
+    io_async_success_ = abb::robot::utilities::setGPIO(*rws_manager_, "SC_Feedback_Net/SC_Feedback_Dev/ManualMode", static_cast<bool>(ManualMode_cmd_));
+    ManualMode_cmd_ = NO_NEW_CMD_;
+  }
+  
 }
 
 void ABBSystemHardware::initAsyncIO()
 {
   stop_RAPID_program_cmd_ = NO_NEW_CMD_;
+
+  ManualMode_cmd_ = NO_NEW_CMD_;
 }
 
 }  // namespace abb_hardware_interface
