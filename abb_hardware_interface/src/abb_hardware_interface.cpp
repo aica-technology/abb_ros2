@@ -86,6 +86,7 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
   const auto rws_port = stoi(info_.hardware_parameters["rws_port"]);
   const auto rws_ip = info_.hardware_parameters["rws_ip"];
   const auto rapid_file_path = info_.hardware_parameters["rapid_file_path"];
+  const auto target_module_name = info_.hardware_parameters["target_module_name"];
   
   tf_prefix_ = info_.hardware_parameters["tf_prefix"];
   rws_manager_ = std::make_unique<abb::robot::RWSManager>(rws_ip, rws_port, "Default User", "robotics");
@@ -160,103 +161,35 @@ CallbackReturn ABBSystemHardware::on_init(const hardware_interface::HardwareInfo
     }
   }
 
-   if (!abb::robot::utilities::stopRAPIDprogram(*rws_manager_))
-   {
+  if (!abb::robot::utilities::stopRAPIDprogram(*rws_manager_))
+  {
     return CallbackReturn::ERROR;
-   }
+  }
 
-  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
-    try
-    {
-      FILE* file = std::fopen(rapid_file_path.c_str(), "rb");  
-      if (!file)
-      {
-        throw std::runtime_error(std::string("Failed to open file: ") + rapid_file_path);
-      }
+  if (!abb::robot::utilities::uploadFile(*rws_manager_, rapid_file_path, target_module_name))
+  {
+    return CallbackReturn::ERROR;
+  }
 
-      std::fseek(file, 0, SEEK_END);
-      long size = std::ftell(file);
-      std::rewind(file);
-
-      std::string buffer;
-      buffer.resize(size);
-
-      if (size > 0)
-      {
-        size_t read = std::fread(&buffer[0], 1, size, file);
-        buffer.resize(read);
-      }
-
-      std::fclose(file);
-
-      RCLCPP_INFO_STREAM(LOGGER, "Trying to upload file to controller...");
-      interface.uploadFile(abb::rws::FileResource("main.mod"), buffer);
-    } 
-    catch (...)
-    {
-      RCLCPP_ERROR_STREAM(LOGGER, "Failed to upload file...");
-      // return CallbackReturn::ERROR;
-    }
-  });
-
-  rclcpp::sleep_for(1000ms);
-
-  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
-    try
-    {
-      RCLCPP_INFO_STREAM(LOGGER, "Trying to load module to task...");
-      interface.loadModuleIntoTask("T_ROB1", abb::rws::FileResource("main.mod"), true);
-    } 
-    catch (...)
-    {
-      RCLCPP_ERROR_STREAM(LOGGER, "Failed to load module...");
-      // return CallbackReturn::ERROR;
-    }
-  });
-
-  rclcpp::sleep_for(1000ms);
+  if (!abb::robot::utilities::loadModuleIntoTask(*rws_manager_, "T_ROB1", target_module_name))
+  {
+    return CallbackReturn::ERROR;
+  }
   
-    rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
-    try
-    {
-      RCLCPP_INFO_STREAM(LOGGER, "Trying to set pp to main.....");
-      interface.resetRAPIDProgramPointer();
-      RCLCPP_WARN_STREAM(LOGGER, "pp set to main.....");
-    }
-    catch(...)
-    {
-      RCLCPP_ERROR_STREAM(LOGGER, "Failed to reset pointer...");
-    }
-  });
+  if (!abb::robot::utilities::resetPP(*rws_manager_))
+  {
+    return CallbackReturn::ERROR;
+  }
 
-  rclcpp::sleep_for(1000ms);
+  if (!abb::robot::utilities::startMotors(*rws_manager_))
+  {
+    return CallbackReturn::ERROR;
+  }
 
-  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
-    try
-    {
-      RCLCPP_WARN_STREAM(LOGGER, "Trying to start motors.....");
-      interface.setMotorsOn();
-    }
-    catch (...)
-    {
-      RCLCPP_ERROR_STREAM(LOGGER, "Failed to start motors...");
-    }
-  });
-
-  rclcpp::sleep_for(1000ms);
-
-  rws_manager_->runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
-    try
-    {
-      RCLCPP_INFO_STREAM(LOGGER, "Trying to start RAPID program...");
-      interface.startRAPIDExecution();
-    } 
-    catch (...)
-    {
-      RCLCPP_ERROR_STREAM(LOGGER, "Failed to start RAPID program...");
-      // return CallbackReturn::ERROR;
-    }
-  });
+  if (!abb::robot::utilities::startRAPIDprogram(*rws_manager_))
+  {
+    return CallbackReturn::ERROR;
+  }
 
   RCLCPP_INFO_STREAM(LOGGER, "Robot controller description:\n"
                                  << abb::robot::summaryText(robot_controller_description_));
@@ -414,6 +347,30 @@ CallbackReturn ABBSystemHardware::on_activate(const rclcpp_lifecycle::State& /* 
   async_thread_ = std::make_shared<std::thread>(&ABBSystemHardware::asyncThread, this);
 
   RCLCPP_INFO(LOGGER, "ros2_control hardware interface was successfully started!");
+
+  return CallbackReturn::SUCCESS;
+}
+
+CallbackReturn ABBSystemHardware::on_deactivate(const rclcpp_lifecycle::State& /* previous_state */)
+{
+  RCLCPP_INFO(LOGGER, "Deactivating ABB interface...");
+
+  if (async_thread_) 
+  {
+    async_thread_shutdown_ = true;
+    async_thread_->join();
+    async_thread_.reset();
+  }
+
+  if (!abb::robot::utilities::stopRAPIDprogram(*rws_manager_))
+  {
+    return CallbackReturn::ERROR;
+  }
+
+  if (!abb::robot::utilities::stopMotors(*rws_manager_))
+  {
+    return CallbackReturn::ERROR;
+  }
 
   return CallbackReturn::SUCCESS;
 }

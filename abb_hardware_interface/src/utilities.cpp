@@ -116,6 +116,30 @@ bool verifyStateMachineAddInPresence(const SystemIndicators& system_indicators)
   return system_indicators.addins().state_machine_1_0() || system_indicators.addins().state_machine_1_1();
 }
 
+bool startRAPIDprogram(RWSManager& rws_manager)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+
+  bool success {}; 
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to start RAPID program...");
+      interface.startRAPIDExecution();
+      success = true; 
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to start RAPID program...");
+      success = false;
+    }
+  });
+  return success;
+}
+
 bool stopRAPIDprogram(RWSManager& rws_manager)
 {
   if (!verifyRWSManagerReady(rws_manager))
@@ -146,7 +170,7 @@ bool setGPIO(RWSManager& rws_manager, const std::string& signal, bool value)
   {
     return false;
   }
-  if (!verifyArgumentSignal(signal))
+  if (!verifyArgument(signal))
   {
     return false;
   }
@@ -168,6 +192,148 @@ bool setGPIO(RWSManager& rws_manager, const std::string& signal, bool value)
   return success;
 }
 
+bool uploadFile(RWSManager& rws_manager, const std::string& source_file_path, const std::string& target_file_name)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+  if (!verifyArgument(source_file_path) && !verifyArgument(target_file_name))
+  {
+    return false;
+  }
+
+  bool success {};
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      FILE* file = std::fopen(source_file_path.c_str(), "rb");  
+      if (!file)
+      {
+        throw std::runtime_error(std::string("Failed to open file: ") + source_file_path);
+      }
+
+      std::fseek(file, 0, SEEK_END);
+      long size = std::ftell(file);
+      std::rewind(file);
+      std::string buffer;
+      buffer.resize(size);
+
+      if (size > 0)
+      {
+        size_t read = std::fread(&buffer[0], 1, size, file);
+        buffer.resize(read);
+      }
+      std::fclose(file);
+
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to upload file to controller...");
+      interface.uploadFile(abb::rws::FileResource(target_file_name), buffer);
+      success = true;
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to upload file...");
+      success = false;
+    }
+  });
+  return success;
+}
+
+bool loadModuleIntoTask(RWSManager& rws_manager, const std::string& task_name, const std::string& module_name)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+
+  bool success {};
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to load module to task...");
+      interface.loadModuleIntoTask(task_name, abb::rws::FileResource(module_name), true);
+      success = true;
+    } 
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to load module...");
+      success = false;
+    }
+  });
+  return success;
+}
+
+bool startMotors(RWSManager& rws_manager)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+
+  bool success {}; 
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_WARN_STREAM(LOGGER, "Trying to start motors.....");
+      interface.setMotorsOn();
+      success = true;
+    }
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to start motors...");
+      success = false;
+    }
+  });
+  return success;
+}
+
+bool stopMotors(RWSManager& rws_manager)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+
+  bool success {}; 
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_WARN_STREAM(LOGGER, "Trying to stop motors.....");
+      interface.setMotorsOff();
+      success = true;
+    }
+    catch (...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to stop motors...");
+      success = false;
+    }
+  });
+  return success;
+}
+
+bool resetPP(RWSManager& rws_manager)
+{
+  if (!verifyRWSManagerReady(rws_manager))
+  {
+    return false;
+  }
+
+  bool success {}; 
+  rws_manager.runService([&](abb::rws::v2_0::RWSStateMachineInterface& interface) {
+    try
+    {
+      RCLCPP_INFO_STREAM(LOGGER, "Trying to set pp to main.....");
+      interface.resetRAPIDProgramPointer();
+      success = true;
+    }
+    catch(...)
+    {
+      RCLCPP_ERROR_STREAM(LOGGER, "Failed to reset pointer...");
+      success = false;
+    }
+  });
+  return success;
+}
 
 bool verifyRWSManagerReady(RWSManager& rws_manager)
 {
@@ -179,7 +345,7 @@ bool verifyRWSManagerReady(RWSManager& rws_manager)
   return true;
 }
 
-bool verifyArgumentSignal(const std::string& signal)
+bool verifyArgument(const std::string& signal)
 {
   if (signal.empty())
   {

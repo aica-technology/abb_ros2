@@ -89,12 +89,40 @@ void verifyRobotWareVersion(const RobotWareVersion& rw_version);
 bool verifyStateMachineAddInPresence(const SystemIndicators& system_indicators);
 
 /**
+ * \brief Starts the RAPID program that is running.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ *
+ */
+bool startRAPIDprogram(RWSManager& rws_manager);
+
+/**
  * \brief Stops the RAPID program that is running.
  *
  * \param rws_manager for handling the RWS communication with the robot controller.
  *
  */
 bool stopRAPIDprogram(RWSManager& rws_manager);
+
+/**
+ * \brief Reads a file from a path and uploads it in the controller Home directory.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ * \param source_file_path the RAPID file path to read and upload.
+ * \param target_file_name the desired name in the controller directory.
+ *
+ */
+bool uploadFile(RWSManager& rws_manager, const std::string& source_file_path, const std::string& target_file_name);
+
+/**
+ * \brief Loads a module into the controller task.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ * \param task_name the desired task name.
+ * \param module_name the desired name in the controller directory.
+ *
+ */
+bool loadModuleIntoTask(RWSManager& rws_manager, const std::string& task_name, const std::string& module_name);
 
 /**
  * \brief Sets a GPIO.
@@ -107,12 +135,36 @@ bool stopRAPIDprogram(RWSManager& rws_manager);
 bool setGPIO(RWSManager& rws_manager, const std::string& signal, bool value);
 
 /**
- * \brief Verifys that a signal argument is not empty.
+ * \brief Starts the motors.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ *
+ */
+bool startMotors(RWSManager& rws_manager);
+
+/**
+ * \brief Stops the motors.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ *
+ */
+bool stopMotors(RWSManager& rws_manager);
+
+/**
+ * \brief Resets the program pointer to main.
+ *
+ * \param rws_manager for handling the RWS communication with the robot controller.
+ *
+ */
+bool resetPP(RWSManager& rws_manager);
+
+/**
+ * \brief Verifys that an argument is not empty.
  *
  * \param signal the signal name.
  *
  */
-bool verifyArgumentSignal(const std::string& signal);
+bool verifyArgument(const std::string& signal);
 
 /**
  * \brief Verifys that the RWS manager is ready.

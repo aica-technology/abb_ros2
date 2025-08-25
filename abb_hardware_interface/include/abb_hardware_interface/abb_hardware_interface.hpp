@@ -59,6 +59,9 @@ public:
   CallbackReturn on_activate(const rclcpp_lifecycle::State& previous_state) override;
 
   ROS2_CONTROL_DRIVER_PUBLIC
+  CallbackReturn on_deactivate(const rclcpp_lifecycle::State& previous_state) override;
+  
+  ROS2_CONTROL_DRIVER_PUBLIC
   return_type read(const rclcpp::Time& time, const rclcpp::Duration& period) override;
 
   ROS2_CONTROL_DRIVER_PUBLIC
