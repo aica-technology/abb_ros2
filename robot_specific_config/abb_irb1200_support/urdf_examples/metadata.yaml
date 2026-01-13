@@ -1,0 +1,6 @@
+irb1200_5_90.urdf:
+  name: "ABB IRB 1200 5/90"
+  description: "ABB IRB 1200 5/90"
+irb1200_5_90_mock.urdf:
+  name: "ABB IRB 1200 5/90 (mock interface)"
+  description: "ABB IRB 1200 5/90 mock"

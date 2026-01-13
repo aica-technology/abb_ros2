@@ -1,0 +1,6 @@
+irb1010.urdf:
+  name: "ABB IRB 1010"
+  description: "ABB IRB 1010"
+irb1010_mock.urdf:
+  name: "ABB IRB 1010 (mock interface)"
+  description: "ABB IRB 1010 mock"

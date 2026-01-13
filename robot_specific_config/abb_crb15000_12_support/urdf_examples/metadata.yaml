@@ -1,0 +1,6 @@
+crb15000_12.urdf:
+  name: "ABB CRB 15000 - 12 Kg"
+  description: "ABB CRB 15000 - 12 Kg"
+crb15000_12_mock.urdf:
+  name: "ABB CRB 15000 - 12 Kg (mock interface)"
+  description: "ABB CRB 15000 - 12 Kg mock"

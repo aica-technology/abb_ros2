@@ -1,0 +1,301 @@
+<?xml version="1.0" encoding="utf-8"?>
+<robot name="irb1010">
+  <!-- link list -->
+  <link name="world"/>
+  <link name="base_link">
+    <inertial>
+      <origin xyz="-0.0477018268428046 -0.00748897150438554 0.0595083401841374" rpy="0 0 0" />
+      <mass value="2.62201256192641" />
+      <inertia ixx="0.00618552772330436" ixy="-0.0018216989744245" ixz="9.51101435511174E-05" iyy="0.0136701899390924" iyz="-1.78837823654285E-05" izz="0.013435817643367" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/base_link.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/base_link.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="link_1">
+    <inertial>
+      <origin xyz="-0.000243486008799421 -0.00258297210697711 0.0536491669768631" rpy="0 0 0" />
+      <mass value="1.15257741799731" />
+      <inertia ixx="0.00197166163900197" ixy="3.06959113229131E-06" ixz="1.26687904611061E-05" iyy="0.00244345468490631" iyz="-7.27549711855021E-05" izz="0.00213544911435498" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_1.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.780392156862745 0.8 0.788235294117647 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_1.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="link_2">
+    <inertial>
+      <origin xyz="-0.000700296823744839 -0.0207873490278622 0.0798317268317328" rpy="0 0 0" />
+      <mass value="1.89213376263057" />
+      <inertia ixx="0.00926552128243312" ixy="3.88497645281026E-06" ixz="-5.34204676884248E-05" iyy="0.016368426468137" iyz="0.000344747536003539" izz="0.0101559279372032" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_2.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.780392156862745 0.8 0.788235294117647 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_2.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="link_3">
+    <inertial>
+      <origin xyz="0.000196552091334068 -0.00698287965496591 -0.000215387759845198" rpy="0 0 0" />
+      <mass value="1.11833348226058" />
+      <inertia ixx="0.00209584031750101" ixy="-2.18746783247141E-06" ixz="2.08401524621663E-06" iyy="0.00160782503616012" iyz="5.39668579976234E-06" izz="0.00245250454460518" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_3.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_3.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="link_4">
+    <inertial>
+      <origin xyz="0.00124140598887856 0.0560078303491151 0.00172641764424308" rpy="0 0 0" />
+      <mass value="0.754103603850556" />
+      <inertia ixx="0.00171910624827954" ixy="-2.95452274446574E-05" ixz="8.17061904210869E-08" iyy="0.00148924979043866" iyz="3.12748239306282E-05" izz="0.00246285054142673" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_4.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.792156862745098 0.819607843137255 0.933333333333333 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_4.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="link_5">
+    <inertial>
+      <origin xyz="-0.000509961578281981 -0.0126608970350069 0.000146093113727597" rpy="0 0 0" />
+      <mass value="0.502565444381233" />
+      <inertia ixx="0.000594477811604141" ixy="-2.88470769574446E-06" ixz="2.05945348977693E-06" iyy="0.000421588857458291" iyz="-3.03502462127774E-06" izz="0.000622894566183076" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_5.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.780392156862745 0.8 0.788235294117647 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_5.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <link name="link_6">
+    <inertial>
+      <origin xyz="0 0.00947842779289376 -2.4780057672924E-05" rpy="0 0 0" />
+      <mass value="0.0230010103100166" />
+      <inertia ixx="3.59103278856139E-06" ixy="3.0836997637278E-22" ixz="-1.33812873546741E-21" iyy="5.64116121551831E-06" iyz="-1.53788486719142E-09" izz="3.57573750212704E-06" />
+    </inertial>
+    <visual>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_6.stl" />
+      </geometry>
+      <material name="">
+        <color rgba="0.780392156862745 0.8 0.788235294117647 1" />
+      </material>
+    </visual>
+    <collision>
+      <origin xyz="0 0 0" rpy="0 0 0" />
+      <geometry>
+        <mesh filename="package://abb_irb1010_support/meshes/link_6.stl" />
+      </geometry>
+    </collision>
+  </link>
+  <!-- end of link list -->
+  <!-- joint list -->
+  <joint name="to_world" type="fixed">
+    <parent link="world"/>
+    <child link="base_link"/>
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+  </joint>
+  <joint name="joint_1" type="revolute">
+    <origin xyz="0.000606005054988645 -4.32268720191864E-05 0.122" rpy="0 0 -1.57014629859845" />
+    <parent link="base_link" />
+    <child link="link_1" />
+    <axis xyz="0 0 1" />
+    <limit effort="1000" lower="-2.967059728" upper="2.967059728" velocity="5.585"/>
+  </joint>
+  <joint name="joint_2" type="revolute">
+    <origin xyz="0.000500779975781018 0 0.0679999999999983" rpy="0 0 0" />
+    <parent link="link_1" />
+    <child link="link_2" />
+    <axis xyz="-1 0 0" />
+    <limit effort="1000" lower="-1.308996975" upper="2.181661625" velocity="5.585"/>
+  </joint>
+  <joint name="joint_3" type="revolute">
+    <origin xyz="-0.000850000000000684 0 0.184995771104224" rpy="0 0 0" />
+    <parent link="link_2" />
+    <child link="link_3" />
+    <axis xyz="-1 0 0" />
+    <limit effort="1000" lower="-3.14159274" upper="0.87266465" velocity="6.545"/>
+  </joint>
+  <joint name="joint_4" type="revolute">
+    <origin xyz="0.00034999999999985 0.0553000000000001 0" rpy="0 0 0" />
+    <parent link="link_3" />
+    <child link="link_4" />
+    <axis xyz="0 1 0" />
+    <limit effort="1000" lower="-2.967059728" upper="2.967059728" velocity="8.727"/>
+  </joint>
+  <joint name="joint_5" type="revolute">
+    <origin xyz="-0.000349999999999628 0.129708443596452 0" rpy="0 0 0" />
+    <parent link="link_4" />
+    <child link="link_5" />
+    <axis xyz="-1 0 0" />
+    <limit effort="1000" lower="-2.181661625" upper="2.181661625" velocity="8.203"/>
+  </joint>
+  <joint name="joint_6" type="revolute">
+    <origin xyz="0.000349999999999628 0.0255915564035484 0" rpy="0 0 0" />
+    <parent link="link_5" />
+    <child link="link_6" />
+    <axis xyz="0 1 0" />
+    <limit effort="1000" lower="-6.28" upper="6.28" velocity="8.727"/>
+  </joint>
+  <!-- end of joint list -->
+  <!-- ROS-Industrial 'base' frame- base_link to ABB World Coordinates transform -->
+  <link name="base"/>
+  <joint name="base_link-base" type="fixed">
+    <origin rpy="0 0 0" xyz="0 0 0"/>
+    <parent link="base_link"/>
+    <child link="base"/>
+  </joint>
+  <!-- ROS-Industrial 'flange' frame- attachment point for EEF models -->
+  <link name="flange"/>
+  <joint name="joint_6-flange" type="fixed">
+    <origin rpy="0 0 1.5707963267948966" xyz="0 0.0194 0"/>
+    <parent link="link_6"/>
+    <child link="flange"/>
+  </joint>
+  <!-- ROS-Industrial 'tool0' frame- all-zeros tool frame -->
+  <link name="tool0"/>
+  <joint name="flange-tool0" type="fixed">
+    <origin rpy="0 1.5707963267948966 0" xyz="0 0 0"/>
+    <parent link="flange"/>
+    <child link="tool0"/>
+  </joint>
+  <ros2_control name="ABBMultiInterfaceHardware" type="system">
+    <hardware>
+      <plugin>aica_core_interfaces/MockInterface</plugin>
+    </hardware>
+    <joint name="joint_1">
+      <command_interface name="position">
+        <param name="min">-2.967059728</param>
+        <param name="max">2.967059728</param>
+      </command_interface>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_2">
+      <command_interface name="position">
+        <param name="min">-1.308996975</param>
+        <param name="max">2.181661625</param>
+      </command_interface>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_3">
+      <command_interface name="position">
+        <param name="min">-3.14159274</param>
+        <param name="max">0.87266465</param>
+      </command_interface>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_4">
+      <command_interface name="position">
+        <param name="min">-2.967059728</param>
+        <param name="max">2.967059728</param>
+      </command_interface>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_5">
+      <command_interface name="position">
+        <param name="min">-2.181661625</param>
+        <param name="max">2.181661625</param>
+      </command_interface>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+    <joint name="joint_6">
+      <command_interface name="position">
+        <param name="min">-6.28</param>
+        <param name="max">6.28</param>
+      </command_interface>
+      <command_interface name="velocity"/>
+      <state_interface name="position">
+        <param name="initial_value">0.0</param>
+      </state_interface>
+      <state_interface name="velocity"/>
+    </joint>
+  </ros2_control>
+</robot>

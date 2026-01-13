@@ -6,5 +6,5 @@ find_package(ament_cmake REQUIRED)
 
 ament_package()
 
-install(DIRECTORY launch meshes rviz urdf
+install(DIRECTORY launch meshes rviz urdf urdf_examples
   DESTINATION share/${PROJECT_NAME})
