@@ -1,0 +1,72 @@
+#syntax=ghcr.io/aica-technology/package-builder:v1.6.1
+
+[signing]
+enabled = false
+signer = "v2.0.2"
+
+[metadata]
+version = "0.1.0"
+description = "ABB collection"
+
+[metadata.collection]
+name = "collections/abb-collection"
+ros-name = "abb_collection"
+
+[build]
+type = "ros"
+image = "v2.0.6-jazzy"
+
+[build.dependencies]
+"@aica/foss/control-libraries" = "v9.2.0"
+
+[build.packages.abb_libegm]
+source = "git://github.com/ros-industrial/abb_libegm#master"
+skip-sign = true
+
+[build.packages.abb_librws]
+source = "git://github.com/ros-industrial/abb_librws#master"
+skip-sign = true
+
+[build.packages.abb_egm_rws_managers]
+source = "git://github.com/ros-industrial/abb_egm_rws_managers#master"
+skip-sign = true
+
+[build.packages.abb_hardware_interface]
+source = "abb_hardware_interface"
+skip-sign = true
+
+[build.packages.abb_resources]
+source = "abb_resources"
+skip-sign = true
+
+[build.packages.abb_irb1200_support]
+source = "robot_specific_config/abb_irb1200_support"
+skip-sign = true
+
+[build.packages.abb_irb1010_support]
+source = "robot_specific_config/abb_irb1010_support"
+skip-sign = true
+
+[build.packages.abb_crb15000_12_support]
+source = "robot_specific_config/abb_crb15000_12_support"
+skip-sign = true
+
+[build.packages.abb_egm_msgs]
+source = "git://github.com/gbartyzel/abb_ros2_msgs#rolling:abb_egm_msgs"
+skip-sign = true
+
+[build.packages.abb_robot_msgs]
+source = "git://github.com/gbartyzel/abb_ros2_msgs#rolling:abb_robot_msgs"
+skip-sign = true
+
+[build.packages.abb_rapid_msgs]
+source = "git://github.com/gbartyzel/abb_ros2_msgs#rolling:abb_rapid_msgs"
+skip-sign = true
+
+[build.packages.abb_rapid_sm_addin_msgs]
+source = "git://github.com/gbartyzel/abb_ros2_msgs#rolling:abb_rapid_sm_addin_msgs"
+skip-sign = true
+
+[build.packages.abb_rws_client]
+source = "abb_rws_client"
+skip-sign = true
