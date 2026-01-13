@@ -1,0 +1,47 @@
+{
+    "$schema": "https://docs.aica.tech/schemas/1-1-1/component.schema.json",
+    "name": "ABB RWS Service Server",
+    "description": {
+        "brief": "Stream color and depth images from an Orbbec camera",
+        "details": "This component launches a camera node, that allows streaming of color and depth images from an Orbbec camera. Please check your camera's documentation for the available resolutions, formats and frame rates. The provided parameters allow to activate several different filters, which in turn allow and may -optionally- require the definition of their own dedicated parameters. For more information on what should be defined, please check the individual filter descriptions."
+    },
+    "inherits": "rclcpp::Node",
+    "registration": "abb_rws_client::RWSClientComponent",
+    "parameters": [
+      {
+        "display_name": "Robot nickname",
+        "description": "Name of the robot",
+        "parameter_name": "robot_nickname",
+        "parameter_type": "string",
+        "default_value": "abb_something"
+      },
+      {
+        "display_name": "No connection timeout",
+        "description": "No connection timeout",
+        "parameter_name": "no_connection_timeout",
+        "parameter_type": "bool",
+        "default_value": "true"
+      },
+      {
+        "display_name": "Robot IP",
+        "description": "Robot IP",
+        "parameter_name": "robot_ip",
+        "parameter_type": "string",
+        "default_value": null
+      },
+      {
+        "display_name": "Robot port",
+        "description": "Robot port",
+        "parameter_name": "robot_port",
+        "parameter_type": "int",
+        "default_value": "80"
+      }
+    ],
+    "services": [
+      {
+        "display_name": "Set file contents",
+        "service_name": "set_file_contents",
+        "description": "Service to set file contents"
+      }
+    ]
+}

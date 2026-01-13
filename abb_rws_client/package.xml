@@ -9,6 +9,7 @@
   <license>Apache2</license>
 
   <depend>rclcpp</depend>
+  <depend>rclcpp_components</depend>
   <depend>abb_egm_rws_managers</depend>
   <depend>sensor_msgs</depend>
   <depend>abb_egm_msgs</depend>

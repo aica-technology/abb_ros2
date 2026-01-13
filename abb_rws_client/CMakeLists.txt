@@ -26,6 +26,7 @@ set(THIS_PACKAGE_INCLUDE_DEPENDS
     abb_rapid_sm_addin_msgs
     abb_hardware_interface
     rclcpp
+    rclcpp_components
     sensor_msgs
 )
 
@@ -45,6 +46,7 @@ add_library(rws_client_lib
   src/rws_state_publisher_ros.cpp
   src/mapping.cpp
 )
+set_target_properties(rws_client_lib PROPERTIES POSITION_INDEPENDENT_CODE ON)
 ament_target_dependencies(rws_client_lib ${THIS_PACKAGE_INCLUDE_DEPENDS})
 target_include_directories(
   rws_client_lib
@@ -61,6 +63,21 @@ target_include_directories(
   include
 )
 
+add_library(rws_client_component SHARED
+  src/rws_client_component.cpp
+)
+target_include_directories(rws_client_component PRIVATE include)
+target_link_libraries(rws_client_component rws_client_lib)
+ament_target_dependencies(rws_client_component
+  rclcpp
+  rclcpp_components
+)
+
+rclcpp_components_register_node(rws_client_component
+  PLUGIN "abb_rws_client::RWSClientComponent"
+  EXECUTABLE rws_client_component_node
+)
+
 #############
 ## Install ##
 #############
@@ -68,6 +85,12 @@ target_include_directories(
 install(
   TARGETS rws_client
   DESTINATION lib/${PROJECT_NAME}
+)
+
+install(TARGETS rws_client_component 
+  ARCHIVE DESTINATION lib
+  LIBRARY DESTINATION lib
+  RUNTIME DESTINATION bin
 )
 
 install(
@@ -78,6 +101,9 @@ install(
   RUNTIME DESTINATION bin
 )
 
+install(DIRECTORY ./component_descriptions
+        DESTINATION .)
+        
 #############
 ## Testing ##
 #############
